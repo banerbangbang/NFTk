@@ -21,7 +21,7 @@ local CreditsTab = Window:CreateTab("Инфо", "info")
 
 -- Функция продажи
 local function ServerSell()
-    if not autoSellEnabled then return end -- ← фикс: продажа только если включена
+    if not autoSellEnabled then return end
     local args = { "Sell", "ALL", false }
     pcall(function()
         game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Inventory"):FireServer(unpack(args))
@@ -64,7 +64,6 @@ local function StartFarm(caseName, iterations)
             break
         end
         
-        -- Авто-продажа ТОЛЬКО если включена
         if autoSellEnabled then
             ServerSell()
         end
@@ -169,8 +168,8 @@ local function AddFarmButton(tab, caseName, displayName)
     tab:CreateLabel("━━━━━━━━━━━━━━━━━━━━")
 end
 
--- ============ ТВОИ КЕЙСЫ ============
-AddFarmButton(MainTab, "Dio", "Dio")  -- ← исправлено с Dno на Дио
+-- ============ ТВОИ КЕЙСЫ (Dio исправлен на английский) ============
+AddFarmButton(MainTab, "Dio", "Dio")  -- ← ИСПРАВЛЕНО! Было "Дио", стало "Dio"
 AddFarmButton(MainTab, "Dream", "Dream")
 AddFarmButton(MainTab, "Bloody Night", "Bloody Night")
 AddFarmButton(MainTab, "Ninja Turtles", "Ninja Turtles")
