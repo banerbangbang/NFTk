@@ -1,4 +1,4 @@
--- NFT Battle Script (ускоренный 0.5с, по 10 кейсов)
+-- NFT Battle Script (оптимизированный)
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -19,16 +19,21 @@ local MainTab = Window:CreateTab("Кейсы", "package")
 local SettingsTab = Window:CreateTab("Настройки", "settings")
 local CreditsTab = Window:CreateTab("Инфо", "info")
 
--- Функция продажи
+-- Оптимизированная функция продажи
 local function ServerSell()
     if not autoSellEnabled then return end
-    local args = { "Sell", "ALL", false }
     pcall(function()
-        game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Inventory"):FireServer(unpack(args))
+        game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Inventory"):FireServer("Sell", "ALL", false)
     end)
 end
 
--- Функция открытия кейсов (с кнопкой СТОП)
+-- Кэшируем ссылки на ReplicatedStorage и Events (для скорости)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Events = ReplicatedStorage:WaitForChild("Events")
+local OpenCase = Events:WaitForChild("OpenCase")
+local Inventory = Events:WaitForChild("Inventory")
+
+-- Функция открытия кейсов (ОПТИМИЗИРОВАННАЯ)
 local function StartFarm(caseName, iterations)
     if isFarming then
         Rayfield:Notify({
@@ -50,9 +55,8 @@ local function StartFarm(caseName, iterations)
     })
     
     while count < iterations and not stopFarming do
-        local success, err = pcall(function()
-            local openArgs = { caseName, 10 }  -- ← Оставляем 10 кейсов за раз
-            game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("OpenCase"):InvokeServer(unpack(openArgs))
+        local success = pcall(function()
+            OpenCase:InvokeServer(caseName, 10)  -- ← прямой вызов без unpack
         end)
         
         if not success then
@@ -65,10 +69,12 @@ local function StartFarm(caseName, iterations)
         end
         
         if autoSellEnabled then
-            ServerSell()
+            pcall(function()
+                Inventory:FireServer("Sell", "ALL", false)
+            end)
         end
         
-        task.wait(0.5)  -- ← Ускорено до 0.5 секунды
+        task.wait(0.8)  -- ← 0.8 секунды для стабильности
         count = count + 1
     end
     
