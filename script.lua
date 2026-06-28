@@ -1,4 +1,4 @@
--- NFT Battle Script (исправленный)
+-- NFT Battle Script (ускоренный 0.5с, по 10 кейсов)
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -51,7 +51,7 @@ local function StartFarm(caseName, iterations)
     
     while count < iterations and not stopFarming do
         local success, err = pcall(function()
-            local openArgs = { caseName, 10 }
+            local openArgs = { caseName, 10 }  -- ← Оставляем 10 кейсов за раз
             game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("OpenCase"):InvokeServer(unpack(openArgs))
         end)
         
@@ -68,7 +68,7 @@ local function StartFarm(caseName, iterations)
             ServerSell()
         end
         
-        task.wait(1)
+        task.wait(0.5)  -- ← Ускорено до 0.5 секунды
         count = count + 1
     end
     
@@ -168,8 +168,8 @@ local function AddFarmButton(tab, caseName, displayName)
     tab:CreateLabel("━━━━━━━━━━━━━━━━━━━━")
 end
 
--- ============ ТВОИ КЕЙСЫ (Dio исправлен на английский) ============
-AddFarmButton(MainTab, "Dio", "Dio")  -- ← ИСПРАВЛЕНО! Было "Дио", стало "Dio"
+-- ============ ТВОИ КЕЙСЫ ============
+AddFarmButton(MainTab, "Dio", "Dio")
 AddFarmButton(MainTab, "Dream", "Dream")
 AddFarmButton(MainTab, "Bloody Night", "Bloody Night")
 AddFarmButton(MainTab, "Ninja Turtles", "Ninja Turtles")
