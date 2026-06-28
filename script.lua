@@ -1,10 +1,10 @@
--- NFT Battle Script (адаптирован под твои кейсы)
+-- NFT Battle Script (исправленный)
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "NFT Battle Script",
    LoadingTitle = "Loading...",
-   LoadingSubtitle = "by bELKAopex (адаптирован)",
+   LoadingSubtitle = "by bELKAopex",
    ConfigurationSaving = { Enabled = false },
    KeySystem = false
 })
@@ -12,16 +12,10 @@ local Window = Rayfield:CreateWindow({
 local autoSellEnabled = false
 local sellInterval = 5
 
--- Вкладки для твоих кейсов (названия на английском)
-local DreamTab = Window:CreateTab("Dream", "star")
-local BloodyTab = Window:CreateTab("Bloody Night", "star")
-local NinjaTab = Window:CreateTab("Ninja Turtles", "star")
-local DeskTab = Window:CreateTab("Desk Calendars", "star")
-local DnoTab = Window:CreateTab("Dno", "star")
-local TsumTab = Window:CreateTab("TSUM", "star") 
-
-local MainTab = Window:CreateTab("Main Settings", "settings")
-local CreditsTab = Window:CreateTab("Credits", "info")
+-- ============ ВСЕ ВКЛАДКИ В ОДНОЙ (вертикальный список) ============
+local MainTab = Window:CreateTab("Кейсы", "package")
+local SettingsTab = Window:CreateTab("Настройки", "settings")
+local CreditsTab = Window:CreateTab("Инфо", "info")
 
 -- Функция продажи
 local function ServerSell()
@@ -31,14 +25,24 @@ local function ServerSell()
     end)
 end
 
--- Функция открытия кейсов
+-- Функция открытия кейсов (с ПРОВЕРКОЙ ошибок)
 local function StartFarm(caseName, iterations)
     local count = 0
     while count < iterations do
-        local openArgs = { caseName, 10 }
-        pcall(function()
+        local success, err = pcall(function()
+            local openArgs = { caseName, 10 }
             game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("OpenCase"):InvokeServer(unpack(openArgs))
         end)
+        
+        if not success then
+            Rayfield:Notify({
+                Title = "Ошибка!",
+                Content = "Кейс '" .. caseName .. "' не найден! Проверь название.",
+                Duration = 5
+            })
+            break
+        end
+        
         if not autoSellEnabled then
             ServerSell()
         end
@@ -57,14 +61,14 @@ task.spawn(function()
     end
 end)
 
--- Настройки
-MainTab:CreateToggle({
+-- ============ НАСТРОЙКИ ============
+SettingsTab:CreateToggle({
    Name = "Auto Sell",
    CurrentValue = false,
    Callback = function(Value) autoSellEnabled = Value end,
 })
 
-MainTab:CreateSlider({
+SettingsTab:CreateSlider({
    Name = "Sell Interval",
    Range = {1, 60},
    Increment = 1,
@@ -73,47 +77,63 @@ MainTab:CreateSlider({
    Callback = function(Value) sellInterval = Value end,
 })
 
-MainTab:CreateButton({
+SettingsTab:CreateButton({
    Name = "Destroy GUI",
    Callback = function() Rayfield:Destroy() end,
 })
 
--- Функция добавления кнопок фарма
-local function AddFarmButtons(tab, caseName)
-    local amounts = {
-        {Name = "Open 1000", Val = 1000},
-        {Name = "Open 100", Val = 100},
-        {Name = "Open 10", Val = 10},
-        {Name = "Open 1", Val = 1}
-    }
-    for _, data in ipairs(amounts) do
-        tab:CreateButton({
-            Name = data.Name,
-            Callback = function()
-                task.spawn(function() StartFarm(caseName, data.Val) end)
-            end,
-        })
-    end
+-- ============ КНОПКИ ДЛЯ КЕЙСОВ (ВСЕ В ОДНОЙ ВКЛАДКЕ) ============
+local function AddFarmButton(tab, caseName, displayName)
+    tab:CreateButton({
+        Name = "Открыть 1000 " .. displayName,
+        Callback = function()
+            task.spawn(function() StartFarm(caseName, 1000) end)
+        end,
+    })
+    tab:CreateButton({
+        Name = "Открыть 100 " .. displayName,
+        Callback = function()
+            task.spawn(function() StartFarm(caseName, 100) end)
+        end,
+    })
+    tab:CreateButton({
+        Name = "Открыть 10 " .. displayName,
+        Callback = function()
+            task.spawn(function() StartFarm(caseName, 10) end)
+        end,
+    })
+    tab:CreateButton({
+        Name = "Открыть 1 " .. displayName,
+        Callback = function()
+            task.spawn(function() StartFarm(caseName, 1) end)
+        end,
+    })
+    tab:CreateLabel("━━━━━━━━━━━━━━━━━━━━") -- разделитель
 end
 
--- Кнопки для твоих кейсов (всё на английском!)
-AddFarmButtons(DreamTab, "Dream")
-AddFarmButtons(BloodyTab, "Bloody Night")
-AddFarmButtons(NinjaTab, "Ninja Turtles")
-AddFarmButtons(DeskTab, "Desk Calendars")
-AddFarmButtons(DnoTab, "Dno")
-AddFarmButtons(TsumTab, "TSUM")
+-- ============ ТВОИ КЕЙСЫ (ДОБАВЬ СЮДА ВСЕ, ЧТО ЕСТЬ) ============
+AddFarmButton(MainTab, "Dream", "Dream")
+AddFarmButton(MainTab, "Bloody Night", "Bloody Night")
+AddFarmButton(MainTab, "Ninja Turtles", "Ninja Turtles")
+AddFarmButton(MainTab, "Desk Calendars", "Desk Calendars")
+AddFarmButton(MainTab, "Dno", "Dno")
+AddFarmButton(MainTab, "TSUM", "TSUM")
 
--- Кредиты
+-- ============ ЕСЛИ НАЗВАНИЯ ДРУГИЕ — ДОБАВЬ СЮДА ============
+-- AddFarmButton(MainTab, "Мечта", "Мечта")
+-- AddFarmButton(MainTab, "Кровавая ночь", "Кровавая ночь")
+-- AddFarmButton(MainTab, "ЦУМ", "ЦУМ")
+
+-- ============ КРЕДИТЫ ============
 CreditsTab:CreateButton({
    Name = "GitHub",
    Callback = function()
-       setclipboard("https://github.com/твой_ник/твой_репозиторий")
+       setclipboard("https://github.com/banerbangbang/NFTk")
        Rayfield:Notify({Title = "Copied!", Content = "Ссылка скопирована", Duration = 3})
    end,
 })
 
--- ============ ОКНО С ВЫБОРОМ "ДА / НЕТ" ПРИ ЗАПУСКЕ ============
+-- ============ ОКНО С ВЫБОРОМ "ДА / НЕТ" ============
 Rayfield:Notify({
     Title = "Auto Sell",
     Content = "Включить авто-продажу?",
@@ -123,22 +143,14 @@ Rayfield:Notify({
             Name = "Да",
             Callback = function()
                 autoSellEnabled = true
-                Rayfield:Notify({
-                    Title = "Auto Sell",
-                    Content = "✅ Включена!",
-                    Duration = 2
-                })
+                Rayfield:Notify({Title = "Auto Sell", Content = "✅ Включена!", Duration = 2})
             end
         },
         {
             Name = "Нет",
             Callback = function()
                 autoSellEnabled = false
-                Rayfield:Notify({
-                    Title = "Auto Sell",
-                    Content = "❌ Выключена",
-                    Duration = 2
-                })
+                Rayfield:Notify({Title = "Auto Sell", Content = "❌ Выключена", Duration = 2})
             end
         }
     }
