@@ -170,7 +170,7 @@ local function AddFarmButton(tab, caseName, displayName)
 end
 
 -- ============ ТВОИ КЕЙСЫ ============
-AddFarmButton(MainTab, "Дио", "Дио")  -- ← исправлено с Dno на Дио
+AddFarmButton(MainTab, "Dio", "Dio")  -- ← исправлено с Dno на Дио
 AddFarmButton(MainTab, "Dream", "Dream")
 AddFarmButton(MainTab, "Bloody Night", "Bloody Night")
 AddFarmButton(MainTab, "Ninja Turtles", "Ninja Turtles")
